@@ -24,6 +24,7 @@
     <Content Include="Content\bootstrap\bootstrap.css" />
     <Content Include="Content\bootstrap\bootstrap.min.css" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="design.html" />
     <Content Include="index.html" />
     <Content Include="jy\index.html" />
     <Content Include="jy\jquery-2.0.3.js" />
