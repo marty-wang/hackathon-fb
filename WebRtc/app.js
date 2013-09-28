@@ -84,6 +84,7 @@
     }
 
     var peer = new Peer(connConfig);
+    //var peer = new Peer({ key: '5bkpny04pqw4gqfr' });
 
     peer.on('open', function (id) {
         console.log('My peer ID is: ' + id);

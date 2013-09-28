@@ -2,8 +2,96 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
-</head>
-<body>
+
+    <link href="Content/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="Content/bootstrap/bootstrap-theme.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="app.css" type="text/css" />
+    <script src="Scripts/jquery-2.0.3.min.js"></script>
+    <script src="http://fb.me/react-0.4.1.js"></script>
+    <script src="http://fb.me/JSXTransformer-0.4.1.js"></script>
+
+    </head>
+    <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">LOLCATCHAT</a>
+            </div>
+        </div><!-- /.container -->
+    </nav>
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-lg-6">
+                <h4>Your Id: dwdwadada</h4>
+            </div>
+            <div class="col-lg-6">
+                <h4>Other creepy dude</h4>
+            </div>
+            <div class="col-lg-6" id="yourVideo">
+                <video style="border-style:solid; border-width:1px; width:550px; height:412px;"></video>
+            </div>
+            <div class="col-lg-6">
+                <div class="row">
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" id="otherid" placeholder="Enter chat identifier">
+                    </div>
+                    <div class="col-md-3">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12" style="margin-top:10px;">
+                        <button type="button" class="btn btn-warning btn-sm">Connect</button>
+                    </div>
+                </div>
+                <!--<video style="border-style:solid; border-width:1px; width:550px; height:412px;"></video>-->
+            </div>
+        </div>
+
+        <br/>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-remove"></span> Disconnect</button>&nbsp;
+                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-zoom-in"></span> Zoom In</button>&nbsp;
+                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-zoom-out"></span> Zoom out</button>&nbsp;
+                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-star"></span> Black & White</button>&nbsp;
+                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-star"></span> Grayscale</button>&nbsp;
+                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-star"></span> Edge</button>&nbsp;
+                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-star"></span> Blur</button>&nbsp;
+                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-star"></span> Uglify</button>&nbsp;
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div><!-- /.container -->
+
+    <script type="text/jsx">
+        /**
+        * @jsx React.DOM
+        */
+        // Your code here
+
+        var VideoBox = React.createClass({
+            render: function() {
+                return (
+                    <video class="videoBox"></video>
+                );
+            }
+        });
+
+        React.renderComponent(
+            <VideoBox />,
+            document.getElementById('yourVideo')
+        );
+
+    </script>
 
 </body>
 </html>
