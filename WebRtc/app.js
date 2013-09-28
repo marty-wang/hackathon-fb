@@ -20,17 +20,9 @@
         self.connectToPeer = function () {
             console.log(self.connectpeerid());
             self.connection = peer.connect(self.connectpeerid());
+            setupCommandBinding(self.connection);
             var call = peer.call(self.connectpeerid(), self.myStream);
-
-            call.on('stream', function (stream) {
-                console.log('call stream');
-                viewModel.otherStream = stream;
-                viewModel.otherVideo = document.querySelector('#otherWebcam');
-                viewModel.otherVideo.src = window.URL.createObjectURL(viewModel.otherStream);
-                viewModel.otherVideo.play();
-                
-                setElementSize(viewModel.otherRawCanvas, 640, 480);
-            });
+            setupCallBinding(call);
         };
 
         self.sendCommand = function () {
@@ -91,19 +83,8 @@
     peer.on('call', function (call) {
         console.log("Call received");
         call.answer(viewModel.myStream);
-
-        call.on('stream', function (stream) {
-            console.log('call stream');
-            viewModel.otherStream = stream;
-            viewModel.otherVideo = document.querySelector('#otherWebcam');
-            viewModel.otherVideo.src = window.URL.createObjectURL(viewModel.otherStream);
-            viewModel.otherVideo.play();
-
-            setElementSize(viewModel.otherRawCanvas, 640, 480);
-        });
+        setupCallBinding(call);
     });
-
-
 
     //this manages command sending
     peer.on('connection', function (conn) {
@@ -111,13 +92,7 @@
         console.log(conn);
         viewModel.connectpeerid(conn.peer);
         viewModel.connection = conn;
-
-        viewModel.connection.on('open', function () {
-            viewModel.connection.on('data', function (data) {
-                console.log(data);
-                viewModel.receiveCommand(data);
-            });
-        });
+        setupCommandBinding(conn);
     });
 
     function refresh() {
@@ -145,6 +120,25 @@
 
     ko.applyBindings(viewModel);
     
+    function setupCallBinding(callConnection) {
+        callConnection.on('stream', function (stream) {
+            console.log('call stream');
+            viewModel.otherStream = stream;
+            viewModel.otherVideo = document.querySelector('#otherWebcam');
+            viewModel.otherVideo.src = window.URL.createObjectURL(viewModel.otherStream);
+            viewModel.otherVideo.play();
 
+            setElementSize(viewModel.otherRawCanvas, 640, 480);
+        });
+    }
+
+    function setupCommandBinding(commandConnection) {
+        commandConnection.on('open', function () {
+            commandConnection.on('data', function (data) {
+                console.log(data);
+                viewModel.receiveCommand(data);
+            });
+        });
+    }
 
 })();
