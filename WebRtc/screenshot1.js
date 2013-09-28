@@ -1,11 +1,11 @@
 ﻿(function () {
 
     var streaming = false,
-        video = document.querySelector('#video'),
-        canvas = document.querySelector('#canvas'),
-        target = document.querySelector('#canvas1'),
-        photo = document.querySelector('#photo'),
-        startbutton = document.querySelector('#startbutton'),
+        video = document.querySelector('#webcam'),
+        canvas = document.querySelector('#raw-canvas'),
+        target = document.querySelector('#target-canvas'),
+        //photo = document.querySelector('#photo'),
+        //startbutton = document.querySelector('#startbutton'),
         width = 320,
         height = 0;
 
@@ -20,7 +20,7 @@
           audio: false
       },
       function (stream) {
-          window.stream = stream;
+          //window.stream = stream;
           video.src = window.URL.createObjectURL(stream);
           video.play();
       },
@@ -32,31 +32,22 @@
     video.addEventListener('canplay', function (ev) {
         if (!streaming) {
             height = video.videoHeight / (video.videoWidth / width);
-            video.setAttribute('width', width);
-            video.setAttribute('height', height);
-            canvas.setAttribute('width', width);
-            canvas.setAttribute('height', height);
+            setElementSize(video, width, height);
+            setElementSize(canvas, width, height);
+            setElementSize(target, width, height);
             streaming = true;
         }
     }, false);
-
-    function takepicture() {
-        canvas.width = width;
-        canvas.height = height;
-        canvas.getContext('2d').drawImage(video, 0, 0, width, height);
-        var data = canvas.toDataURL('image/png');
-        photo.setAttribute('src', data);
+    
+    function setElementSize(element, width, height) {
+        element.setAttribute('width', width);
+        element.setAttribute('height', height);
     }
-
-    startbutton.addEventListener('click', function (ev) {
-        takepicture();
-        ev.preventDefault();
-    }, false);
-
-    function step() {
+    
+    function refresh() {
         canvas.getContext('2d').drawImage(video, 0, 0, width, height);
         onFrame(canvas);
-        requestAnimationFrame(step);
+        requestAnimationFrame(refresh);
     }
     
     function createImageData(ctx, width, height) {
@@ -66,7 +57,26 @@
             return ctx.getImageData(0, 0, width, height);
         }
     }
+    
+    function onFrame(canvas) {
+        var context = canvas.getContext("2d");
+        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
+        var ctx = target.getContext('2d');
+        ctx.putImageData(imageData, 0, 0);
+
+        var inData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        var outData = createImageData(ctx, canvas.width, canvas.height);
+
+        solarize(inData.data, outData.data, canvas.width, canvas.height);
+
+        ctx.putImageData(outData, 0, 0);
+    }
+
+    requestAnimationFrame(refresh);
+    
+    // Effects
+    
     var solarize = function (inData, outData, width, height, options, progress) {
         var n = width * height * 4,
             prog, lastProg = 0,
@@ -91,28 +101,18 @@
         }
     };
 
-    
-    function onFrame(canvas) {
-        var context = canvas.getContext("2d");
-        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    //function takepicture() {
+    //    canvas.width = width;
+    //    canvas.height = height;
+    //    canvas.getContext('2d').drawImage(video, 0, 0, width, height);
+    //    var data = canvas.toDataURL('image/png');
+    //    photo.setAttribute('src', data);
+    //}
 
-        var ctx = target.getContext('2d');
-        ctx.putImageData(imageData, 0, 0);
+    //startbutton.addEventListener('click', function (ev) {
+    //    takepicture();
+    //    ev.preventDefault();
+    //}, false);
 
-        var inData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        //console.log(inData);
-
-        var outData = createImageData(ctx, canvas.width, canvas.height);
-        //console.log("outdata");
-        //console.log(outData);
-
-        solarize(inData.data, outData.data, canvas.width, canvas.height);
-
-
-
-        ctx.putImageData(outData, 0, 0);
-    }
-
-    requestAnimationFrame(step);
 
 })();
