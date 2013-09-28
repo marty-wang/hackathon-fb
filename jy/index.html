@@ -3,12 +3,31 @@
 	<title>Command sending</title>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
   	<script type="text/javascript" src="http://cdn.peerjs.com/0.3/peer.min.js"></script>
+  	<script type='text/javascript' src='http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js'></script>
   	<script src="http://fb.me/react-0.4.1.js"></script>
     <script src="http://fb.me/JSXTransformer-0.4.1.js"></script>
 	</head>
 
 	<body>
 
+		My peer id: <strong><span data-bind="text: peerid"></span></strong>
+		<br/>
+		Connected to: <strong><span data-bind="text: connectpeerid"></span></strong>
+		<br/>
+		<input type="text" data-bind="value: connectpeerid"/> <button data-bind="click: connectToPeer">Connect</button>
+		<br/><br/>
+		<input type="text" data-bind="value: currentcommand"/> <button data-bind="click: sendCommand">Send command</button>
+		<br/><br/>
+		Commands count : <span data-bind="text: commands().length"></span>
+		<br/><br/>
+		<div>
+			Commands list
+			<ul data-bind="foreach: commands">
+				<li>
+					<span data-bind="text: $data"/>
+				</li>
+			</ul>
+		</div>
 
 		<script type="text/jsx">
 	      /**
@@ -21,14 +40,55 @@
 
 		<script type="text/javascript">
 
+			var self = this;
+
+			function AppViewModel() {
+				var self = this;
+				self.peerid = ko.observable();
+				self.connectpeerid = ko.observable();
+				self.commands = ko.observableArray([]);
+				self.currentcommand = ko.observable();
+				self.connectToPeer = function() {
+					console.log(self.connectpeerid());
+					conn = peer.connect(self.connectpeerid());
+				}
+				self.sendCommand = function() {
+					var cmd = self.currentcommand();
+					console.log('adding command ' + cmd)
+					self.commands.push(cmd);
+					self.currentcommand("");
+					conn.send(cmd);
+				}
+				self.receiveCommand = function(receivedCmd) {
+					self.commands.push(receivedCmd);
+				}
+			}
+
+			self.viewModel = new AppViewModel();
+
 			var peer = new Peer({key: '5bkpny04pqw4gqfr'});
 
 			peer.on('open', function(id) {
   				console.log('My peer ID is: ' + id);
+  				self.viewModel.peerid(id);
+			});
+
+			peer.on('connection', function(conn) { 
+				console.log('connection from ' + conn.peer)  
+				console.log(conn);
+				self.viewModel.connectpeerid(conn.peer);
+
+				conn.on('open', function() {
+					conn.on('data', function(data) {
+						console.log(data);
+						self.viewModel.receiveCommand(data);
+					})
+				});
+
 			});
 
 
-
+			ko.applyBindings(self.viewModel);
 
 
 		</script>
