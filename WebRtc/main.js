@@ -75,15 +75,45 @@
         var inData = rawCtx.getImageData(0, 0, width, height);
         var outData = createImageData(rawCtx, width, height);
 
+        var aa = new area(0,0, canvas.width/2, canvas.height/2);
+	    applyArea(inData.data, outData.data, canvas.width, canvas.height, aa);
         // apply effect
-        solarize(inData.data, outData.data, width, height);
+        //solarize(inData.data, outData.data, width, height);
 
         // paint to the target canvas
         targetCtx.putImageData(outData, 0, 0);
     }
 
+    function area(x,y,w,h){
+	    this.x = x;
+	    this.y= y;
+	    this.width = w;
+	    this.height = h;
+    }
+
     requestAnimationFrame(refresh);
-    
+    //Apply filter area
+    var applyArea = applyFilterArea(inData, outData, width, height, area){
+        var xstart = area.x;
+	    var ystart = area.y;
+        var xend = xstart + area.width;
+	    var yend = ystart + area.height;
+	
+	    for(x = xstart; x < xend; x++){
+		    for(y = ystart; y < yend; y++){
+		        var offset = (y*width) + (x * 4);
+		        var r = inData[offset];
+	            var g = inData[offset + 1];
+                var b = inData[offset + 2];
+		        var gray = (r+g+b) / 3;
+		        
+                outData[offset] = gray;
+                outData[offset + 1] = gray;
+                outData[offset + 2] = gray;
+                outData[offset + 3] = inData[offset + 3];
+		    }
+	    }
+    }
     // Effects
     
     var solarize = function (inData, outData, width, height, options, progress) {
