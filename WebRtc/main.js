@@ -9,9 +9,20 @@
         //photo = document.querySelector('#photo'),
         //startbutton = document.querySelector('#startbutton'),
         width = 320,
-        height = 0;
+        height = 0,
+        isMouseDown = false;
 
-    $(target).click(function (evt) {
+    $(target).mousedown(function() {
+        isMouseDown = true;
+    });
+
+    $(target).mouseup(function() {
+        isMouseDown = false;
+    });
+
+    $(target).mousemove(function (evt) {
+        if (!isMouseDown) return;
+        
         var x = evt.offsetX;
         var y = evt.offsetY;
         var pixelData = targetCtx.getImageData(x, y, 1, 1).data;
