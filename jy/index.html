@@ -1,11 +1,11 @@
-<html>
+<!DOCTYPE html>
+
+<html lang="en">
 	<head>
 	<title>Command sending</title>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
-  	<script type="text/javascript" src="http://cdn.peerjs.com/0.3/peer.min.js"></script>
-  	<script type='text/javascript' src='http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js'></script>
-  	<script src="http://fb.me/react-0.4.1.js"></script>
-    <script src="http://fb.me/JSXTransformer-0.4.1.js"></script>
+	<script type="text/javascript" src="jquery-2.0.3.js"></script>
+  	<script type="text/javascript" src="peer.min.js"></script>
+  	<script type='text/javascript' src='knockout-2.3.0.js'></script>
 	</head>
 
 	<body>
@@ -29,66 +29,127 @@
 			</ul>
 		</div>
 
-		<script type="text/jsx">
-	      /**
-	       * @jsx React.DOM
-	       */
-	      // Your code here
-    	</script>
-
-
+            <div>
+                <video id="webcam"></video>
+            </div>
+            <div>
+                <video id="otherWebcam"></video>
+            </div>
 
 		<script type="text/javascript">
 
-			var self = this;
+			(function() {
 
-			function AppViewModel() {
-				var self = this;
-				self.peerid = ko.observable();
-				self.connectpeerid = ko.observable();
-				self.commands = ko.observableArray([]);
-				self.currentcommand = ko.observable();
-				self.connectToPeer = function() {
-					console.log(self.connectpeerid());
-					conn = peer.connect(self.connectpeerid());
-				}
-				self.sendCommand = function() {
-					var cmd = self.currentcommand();
-					console.log('adding command ' + cmd)
-					self.commands.push(cmd);
-					self.currentcommand("");
-					conn.send(cmd);
-				}
-				self.receiveCommand = function(receivedCmd) {
-					self.commands.push(receivedCmd);
-				}
-			}
+				function AppViewModel() {
+					
+					var self = this;
 
-			self.viewModel = new AppViewModel();
+					self.peerid = ko.observable();
+					self.connectpeerid = ko.observable();
+					self.commands = ko.observableArray([]);
+					self.currentcommand = ko.observable();
+					
+					self.myStream = null;
+					self.otherStream = null;
+					self.myVideo = null;
+					self.otherVideo = null;
+					self.myCanvas = null;
+					self.otherCanvas = null;
 
-			var peer = new Peer({key: '5bkpny04pqw4gqfr'});
+					self.connectToPeer = function() {
+						console.log(self.connectpeerid());
+						conn = peer.connect(self.connectpeerid());
+						call = peer.call(self.connectpeerid(), self.myStream);
+					};
+
+					self.sendCommand = function() {
+						var cmd = self.currentcommand();
+						console.log('adding command ' + cmd)
+						self.commands.push(cmd);
+						self.currentcommand("");
+						conn.send(cmd);
+					};
+
+					self.receiveCommand = function(receivedCmd) {
+						self.commands.push(receivedCmd);
+					}
+				}
+
+				var viewModel = new AppViewModel();
+
+			    navigator.getMedia = (navigator.getUserMedia ||
+							           navigator.webkitGetUserMedia ||
+							           navigator.mozGetUserMedia ||
+							           navigator.msGetUserMedia);
+
+
+		        navigator.getMedia(
+			      {
+			          video: true,
+			          audio: false
+			      },
+			      function (stream) {
+			      	viewModel.myStream = stream;
+			      	var video = document.querySelector('#webcam');
+			      	video.src = window.URL.createObjectURL(viewModel.myStream);
+			      	video.play();
+			      	viewModel.myVideo = video;
+			      },
+			      function (err) { 
+			          console.log("An error occured! " + err);
+			          console.log(err);
+			      }
+			    );
+
+
+			var peer = new Peer({host: '192.168.0.1', port: 9000});
 
 			peer.on('open', function(id) {
   				console.log('My peer ID is: ' + id);
-  				self.viewModel.peerid(id);
+  				viewModel.peerid(id);
+			});
+
+			peer.on('call', function(call) {
+  				console.log("Call received");
+  				call.answer(viewModel.myStream);
+
+  				call.on('stream', function(stream) {
+  					console.log('call stream');
+				  	viewModel.otherStream  = stream;
+				  	viewModel.otherVideo =document.querySelector('#otherWebcam');
+				  	viewModel.otherVideo.src = window.URL.createObjectURL(viewModel.otherStream);
+				  	viewModel.otherVideo.play();
+				});
 			});
 
 			peer.on('connection', function(conn) { 
 				console.log('connection from ' + conn.peer)  
 				console.log(conn);
-				self.viewModel.connectpeerid(conn.peer);
+				viewModel.connectpeerid(conn.peer);
 
 				conn.on('open', function() {
 					conn.on('data', function(data) {
 						console.log(data);
-						self.viewModel.receiveCommand(data);
+						viewModel.receiveCommand(data);
 					})
 				});
 
 			});
 
+		    function refresh() {
+		        rawCtx.drawImage(video, 0, 0, width, height);
+		        //onFrame(canvas);
+		        requestAnimationFrame(refresh);
+    		}
 
-			ko.applyBindings(self.viewModel);
+			ko.applyBindings(viewModel);
+
+
+			})();
+
+
+
+
 
 
 		</script>
