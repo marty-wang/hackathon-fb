@@ -4,13 +4,19 @@
         video = document.querySelector('#webcam'),
         canvas = document.querySelector('#raw-canvas'),
         target = document.querySelector('#target-canvas'),
+        rawCtx = canvas.getContext('2d'),
+        targetCtx = target.getContext('2d'),
         //photo = document.querySelector('#photo'),
         //startbutton = document.querySelector('#startbutton'),
         width = 320,
         height = 0;
 
-    $(target).click(function(evt) {
-        console.log("x: " + evt.offsetX + " y: " + evt.offsetY);
+    $(target).click(function (evt) {
+        var x = evt.offsetX;
+        var y = evt.offsetY;
+        var pixelData = targetCtx.getImageData(x, y, 1, 1).data;
+        console.log("x: " + x + " y: " + y);
+        console.log(pixelData);
     });
 
     navigator.getMedia = (navigator.getUserMedia ||
@@ -49,7 +55,7 @@
     }
     
     function refresh() {
-        canvas.getContext('2d').drawImage(video, 0, 0, width, height);
+        rawCtx.drawImage(video, 0, 0, width, height);
         onFrame(canvas);
         requestAnimationFrame(refresh);
     }
@@ -65,7 +71,6 @@
     function onFrame(rawCanvas) {
         var width = rawCanvas.width;
         var height = rawCanvas.height;
-        var rawCtx = rawCanvas.getContext("2d");
         
         var inData = rawCtx.getImageData(0, 0, width, height);
         var outData = createImageData(rawCtx, width, height);
@@ -74,7 +79,6 @@
         solarize(inData.data, outData.data, width, height);
 
         // paint to the target canvas
-        var targetCtx = target.getContext('2d');
         targetCtx.putImageData(outData, 0, 0);
     }
 
