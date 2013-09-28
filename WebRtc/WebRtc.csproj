@@ -23,7 +23,12 @@
     <Content Include="Content\bootstrap\bootstrap.css" />
     <Content Include="Content\bootstrap\bootstrap.min.css" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.svg" />
-    <Content Include="screenshot1.js" />
+    <Content Include="index.html" />
+    <Content Include="jy\index.html" />
+    <Content Include="jy\jquery-2.0.3.js" />
+    <Content Include="jy\knockout-2.3.0.js" />
+    <Content Include="jy\peer.min.js" />
+    <Content Include="main.js" />
     <Content Include="default.htm" />
     <Content Include="default1.htm" />
     <Content Include="pixastic-master\README" />
@@ -47,14 +52,13 @@
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\jquery-2.0.3.js" />
     <Content Include="Scripts\jquery-2.0.3.min.js" />
+    <Content Include="Scripts\knockout-2.3.0.js" />
+    <Content Include="Scripts\peer.min.js" />
     <Content Include="Scripts\typings\jquery\jquery.d.ts" />
     <Content Include="Scripts\typings\webrtc\MediaStream.d.ts" />
     <Content Include="Scripts\typings\webrtc\RTCPeerConnection.d.ts" />
     <Content Include="web.config" />
     <Content Include="Scripts\jquery-2.0.3.min.map" />
-  </ItemGroup>
-  <ItemGroup>
-    <TypeScriptCompile Include="app.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+	<title>Command sending</title>
+	<script type="text/javascript" src="scripts/jquery-2.0.3.js"></script>
+  	<script type="text/javascript" src="scripts/peer.min.js"></script>
+  	<script type='text/javascript' src='scripts/knockout-2.3.0.js'></script>
+	</head>
+
+	<body>
+
+		My peer id: <strong><span data-bind="text: peerid"></span></strong>
+		<br/>
+		Connected to: <strong><span data-bind="text: connectpeerid"></span></strong>
+		<br/>
+		<input type="text" data-bind="value: connectpeerid"/> <button data-bind="click: connectToPeer">Connect</button>
+		<br/><br/>
+		<input type="text" data-bind="value: currentcommand"/> <button data-bind="click: sendCommand">Send command</button>
+		<br/><br/>
+		Commands count : <span data-bind="text: commands().length"></span>
+		<br/><br/>
+		<div>
+			Commands list
+			<ul data-bind="foreach: commands">
+				<li>
+					<span data-bind="text: $data"/>
+				</li>
+			</ul>
+		</div>
+
+            <div>
+                <video id="webcam"></video>
+            </div>
+            <div>
+                <video id="otherWebcam"></video>
+            </div>
+        
+        <script src="app.js"></script>
+
+	</body>
+
+</html>
