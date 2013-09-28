@@ -60,6 +60,14 @@
 						console.log(self.connectpeerid());
 						conn = peer.connect(self.connectpeerid());
 						call = peer.call(self.connectpeerid(), self.myStream);
+
+						call.on('stream', function(stream) {
+							console.log('call stream');
+						  	viewModel.otherStream  = stream;
+						  	viewModel.otherVideo =document.querySelector('#otherWebcam');
+						  	viewModel.otherVideo.src = window.URL.createObjectURL(viewModel.otherStream);
+						  	viewModel.otherVideo.play();
+						});
 					};
 
 					self.sendCommand = function() {
@@ -101,8 +109,7 @@
 			      }
 			    );
 
-
-			//var peer = new Peer({host: 'localhost', port: 9000});
+			//var peer = new Peer({host: '192.168.0.1', port: 9000});
 			var peer = new Peer({key: '5bkpny04pqw4gqfr'});
 
 			peer.on('open', function(id) {
@@ -110,6 +117,7 @@
   				viewModel.peerid(id);
 			});
 
+			//this manages making calls
 			peer.on('call', function(call) {
   				console.log("Call received");
   				call.answer(viewModel.myStream);
@@ -123,6 +131,9 @@
 				});
 			});
 
+
+
+			//this manages command sending
 			peer.on('connection', function(conn) { 
 				console.log('connection from ' + conn.peer)  
 				console.log(conn);
@@ -134,7 +145,6 @@
 						viewModel.receiveCommand(data);
 					})
 				});
-
 			});
 
 		    function refresh() {
