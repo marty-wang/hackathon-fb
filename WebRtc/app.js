@@ -15,6 +15,8 @@
         self.otherVideo = null;
         self.myRawCanvas = $('#myRawCanvas')[0];
         self.otherRawCanvas = $('#otherRawCanvas')[0];
+        self.myFinalCanvas = $('#myFinalCanvas')[0];
+        self.otherFinalCanvas = $('#otherFinalCanvas')[0];
         self.connection = null;
 
         self.connectToPeer = function () {
@@ -59,6 +61,7 @@
           viewModel.myVideo = video;
 
           setElementSize(viewModel.myRawCanvas, 640, 480);
+          setElementSize(viewModel.myFinalCanvas, 640, 480);
       },
       function (err) {
           console.log("An error occured! " + err);
@@ -99,6 +102,7 @@
         var width = 640, height = 480;
         var myRawCanvas = viewModel.myRawCanvas;
         var myRawCtx = myRawCanvas.getContext('2d');
+        var myFinalCtx = viewModel.myFinalCanvas.getContext('2d');
         
         if (viewModel.myVideo) {
             myRawCtx.drawImage(viewModel.myVideo, 0, 0, width, height);
@@ -106,11 +110,23 @@
 
         var otherRawCanvas = viewModel.otherRawCanvas;
         var otherRawCtx = otherRawCanvas.getContext('2d');
+        var otherFinalCtx = viewModel.otherFinalCanvas.getContext('2d');
         
         if (viewModel.otherVideo) {
             otherRawCtx.drawImage(viewModel.otherVideo, 0, 0, width, height);
-
         }
+        
+        var inData = myRawCtx.getImageData(0, 0, width, height);
+        var outData = createImageData(myRawCtx, width, height);
+
+        solarize(inData.data, outData.data, width, height);
+        myRawCtx.putImageData(outData, 0, 0);
+
+        inData = otherRawCtx.getImageData(0, 0, width, height);
+        outData = createImageData(otherRawCtx, width, height);
+        
+        solarize(inData.data, outData.data, width, height);
+        otherRawCtx.putImageData(outData, 0, 0);
 
         //onFrame(canvas);
         requestAnimationFrame(refresh);
@@ -129,6 +145,7 @@
             viewModel.otherVideo.play();
 
             setElementSize(viewModel.otherRawCanvas, 640, 480);
+            setElementSize(viewModel.otherFinalCanvas, 640, 480);
         });
     }
 
@@ -139,6 +156,38 @@
                 viewModel.receiveCommand(data);
             });
         });
+    }
+
+    var solarize = function (inData, outData, width, height, options, progress) {
+        var n = width * height * 4,
+            prog, lastProg = 0,
+            r, g, b;
+
+        for (i = 0; i < n; i += 4) {
+            r = inData[i];
+            g = inData[i + 1];
+            b = inData[i + 2];
+
+            outData[i] = r > 127 ? 255 - r : r;
+            outData[i + 1] = g > 127 ? 255 - g : g;
+            outData[i + 2] = b > 127 ? 255 - b : b;
+            outData[i + 3] = inData[i + 3];
+
+            if (progress) {
+                prog = (i / n * 100 >> 0) / 100;
+                if (prog > lastProg) {
+                    lastProg = progress(prog);
+                }
+            }
+        }
+    };
+
+    function createImageData(ctx, width, height) {
+        if (ctx.createImageData) {
+            return ctx.createImageData(width, height);
+        } else {
+            return ctx.getImageData(0, 0, width, height);
+        }
     }
 
 })();
