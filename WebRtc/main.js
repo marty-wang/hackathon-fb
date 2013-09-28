@@ -9,6 +9,10 @@
         width = 320,
         height = 0;
 
+    $(target).click(function(evt) {
+        console.log("x: " + evt.offsetX + " y: " + evt.offsetY);
+    });
+
     navigator.getMedia = (navigator.getUserMedia ||
                            navigator.webkitGetUserMedia ||
                            navigator.mozGetUserMedia ||
@@ -58,19 +62,20 @@
         }
     }
     
-    function onFrame(canvas) {
-        var context = canvas.getContext("2d");
-        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    function onFrame(rawCanvas) {
+        var width = rawCanvas.width;
+        var height = rawCanvas.height;
+        var rawCtx = rawCanvas.getContext("2d");
+        
+        var inData = rawCtx.getImageData(0, 0, width, height);
+        var outData = createImageData(rawCtx, width, height);
 
-        var ctx = target.getContext('2d');
-        ctx.putImageData(imageData, 0, 0);
+        // apply effect
+        solarize(inData.data, outData.data, width, height);
 
-        var inData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        var outData = createImageData(ctx, canvas.width, canvas.height);
-
-        solarize(inData.data, outData.data, canvas.width, canvas.height);
-
-        ctx.putImageData(outData, 0, 0);
+        // paint to the target canvas
+        var targetCtx = target.getContext('2d');
+        targetCtx.putImageData(outData, 0, 0);
     }
 
     requestAnimationFrame(refresh);
