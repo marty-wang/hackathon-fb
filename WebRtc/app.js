@@ -15,11 +15,12 @@
         self.otherVideo = null;
         self.myCanvas = null;
         self.otherCanvas = null;
+        self.connection = null;
 
         self.connectToPeer = function () {
             console.log(self.connectpeerid());
-            conn = peer.connect(self.connectpeerid());
-            call = peer.call(self.connectpeerid(), self.myStream);
+            self.connection = peer.connect(self.connectpeerid());
+            var call = peer.call(self.connectpeerid(), self.myStream);
 
             call.on('stream', function (stream) {
                 console.log('call stream');
@@ -35,12 +36,12 @@
             console.log('adding command ' + cmd)
             self.commands.push(cmd);
             self.currentcommand("");
-            conn.send(cmd);
+            self.connection.send(cmd);
         };
 
-        self.receiveCommand = function (receivedCmd) {
+        self.receiveCommand = function(receivedCmd) {
             self.commands.push(receivedCmd);
-        }
+        };
     }
 
     var viewModel = new AppViewModel();
@@ -95,15 +96,16 @@
 
     //this manages command sending
     peer.on('connection', function (conn) {
-        console.log('connection from ' + conn.peer)
+        console.log('connection from ' + conn.peer);
         console.log(conn);
         viewModel.connectpeerid(conn.peer);
+        viewModel.connection = conn;
 
-        conn.on('open', function () {
-            conn.on('data', function (data) {
+        viewModel.connection.on('open', function () {
+            viewModel.connection.on('data', function (data) {
                 console.log(data);
                 viewModel.receiveCommand(data);
-            })
+            });
         });
     });
 
