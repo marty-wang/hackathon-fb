@@ -204,22 +204,31 @@
 
         setElementSize(self.$element[0], width, height);
 
+        var startX, startY;
+
         self.$element
-            .mousedown(function() {
+            .mousedown(function (evt) {
+                evt.preventDefault();
                 isMouseDown = true;
+                startX = evt.offsetX;
+                startY = evt.offsetY;
             })
             .mouseup(function () {
                 isMouseDown = false;
             })
             .mousemove(function (evt) {
                 if (!isMouseDown) return;
-
-                var x = evt.offsetX;
-                var y = evt.offsetY;
                 
-                console.log("x: " + x + " y: " + y);
+                //console.log("x: " + x + " y: " + y);
                 //var pixelData = ctx.getImageData(x, y, 1, 1).data;
                 //console.log(pixelData);
+
+                sendData({
+                    startX: startX,
+                    startY: startY,
+                    currentX: evt.offsetX,
+                    currentY: evt.offsetY
+                });
             });
 
         self.$element
@@ -239,6 +248,10 @@
 
                 console.log('x: ' + x + " y: " + y);
             });
+    }
+    
+    function sendData(data) {
+        viewModel.connection.send(data);
     }
 
 })();
