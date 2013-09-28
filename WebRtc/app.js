@@ -13,8 +13,8 @@
         self.otherStream = null;
         self.myVideo = null;
         self.otherVideo = null;
-        self.myCanvas = null;
-        self.otherCanvas = null;
+        self.myRawCanvas = $('#myRawCanvas')[0];
+        self.otherRawCanvas = $('#otherRawCanvas')[0];
         self.connection = null;
 
         self.connectToPeer = function () {
@@ -28,6 +28,8 @@
                 viewModel.otherVideo = document.querySelector('#otherWebcam');
                 viewModel.otherVideo.src = window.URL.createObjectURL(viewModel.otherStream);
                 viewModel.otherVideo.play();
+                
+                setElementSize(viewModel.otherRawCanvas, 640, 480);
             });
         };
 
@@ -63,12 +65,19 @@
           video.src = window.URL.createObjectURL(viewModel.myStream);
           video.play();
           viewModel.myVideo = video;
+
+          setElementSize(viewModel.myRawCanvas, 640, 480);
       },
       function (err) {
           console.log("An error occured! " + err);
           console.log(err);
       }
     );
+    
+    function setElementSize(element, width, height) {
+        element.setAttribute('width', width);
+        element.setAttribute('height', height);
+    }
 
     //var peer = new Peer({host: '192.168.0.1', port: 9000});
     var peer = new Peer({ key: '5bkpny04pqw4gqfr' });
@@ -89,6 +98,8 @@
             viewModel.otherVideo = document.querySelector('#otherWebcam');
             viewModel.otherVideo.src = window.URL.createObjectURL(viewModel.otherStream);
             viewModel.otherVideo.play();
+
+            setElementSize(viewModel.otherRawCanvas, 640, 480);
         });
     });
 
@@ -110,12 +121,30 @@
     });
 
     function refresh() {
-        rawCtx.drawImage(video, 0, 0, width, height);
+        var width = 640, height = 480;
+        var myRawCanvas = viewModel.myRawCanvas;
+        var myRawCtx = myRawCanvas.getContext('2d');
+        
+        if (viewModel.myVideo) {
+            myRawCtx.drawImage(viewModel.myVideo, 0, 0, width, height);
+        }
+
+        var otherRawCanvas = viewModel.otherRawCanvas;
+        var otherRawCtx = otherRawCanvas.getContext('2d');
+        
+        if (viewModel.otherVideo) {
+            otherRawCtx.drawImage(viewModel.otherVideo, 0, 0, width, height);
+
+        }
+
         //onFrame(canvas);
         requestAnimationFrame(refresh);
     }
+    
+    requestAnimationFrame(refresh);
 
     ko.applyBindings(viewModel);
+    
 
 
 })();
