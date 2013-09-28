@@ -102,7 +102,8 @@
 			    );
 
 
-			var peer = new Peer({host: '192.168.0.1', port: 9000});
+			//var peer = new Peer({host: 'localhost', port: 9000});
+			var peer = new Peer({key: '5bkpny04pqw4gqfr'});
 
 			peer.on('open', function(id) {
   				console.log('My peer ID is: ' + id);
