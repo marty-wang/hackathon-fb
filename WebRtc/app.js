@@ -1,5 +1,12 @@
 ﻿(function () {
 
+    var ratio = 0.75;
+    //var widht = 320;
+    var width = 640, height = width * ratio;
+   
+    //var connConfig = {host: '192.168.0.1', port: 9000};
+    var connConfig = { key: '5bkpny04pqw4gqfr' };
+
     function AppViewModel() {
 
         var self = this;
@@ -18,6 +25,9 @@
         self.myFinalCanvas = $('#myFinalCanvas')[0];
         self.otherFinalCanvas = $('#otherFinalCanvas')[0];
         self.connection = null;
+
+        new RtcCanvas('#myRawCanvas');
+        new RtcCanvas('#otherRawCanvas');
 
         self.connectToPeer = function () {
             console.log(self.connectpeerid());
@@ -56,12 +66,11 @@
       function (stream) {
           viewModel.myStream = stream;
           var video = document.querySelector('#webcam');
+          setElementSize(video, width, height);
           video.src = window.URL.createObjectURL(viewModel.myStream);
           video.play();
           viewModel.myVideo = video;
 
-          setElementSize(viewModel.myRawCanvas, 640, 480);
-          setElementSize(viewModel.myFinalCanvas, 640, 480);
       },
       function (err) {
           console.log("An error occured! " + err);
@@ -74,8 +83,7 @@
         element.setAttribute('height', height);
     }
 
-    //var peer = new Peer({host: '192.168.0.1', port: 9000});
-    var peer = new Peer({ key: '5bkpny04pqw4gqfr' });
+    var peer = new Peer(connConfig);
 
     peer.on('open', function (id) {
         console.log('My peer ID is: ' + id);
@@ -99,7 +107,6 @@
     });
 
     function refresh() {
-        var width = 640, height = 480;
         var myRawCanvas = viewModel.myRawCanvas;
         var myRawCtx = myRawCanvas.getContext('2d');
         var myFinalCtx = viewModel.myFinalCanvas.getContext('2d');
@@ -141,11 +148,10 @@
             console.log('call stream');
             viewModel.otherStream = stream;
             viewModel.otherVideo = document.querySelector('#otherWebcam');
+            setElementSize(viewModel.otherVideo, width, height);
             viewModel.otherVideo.src = window.URL.createObjectURL(viewModel.otherStream);
             viewModel.otherVideo.play();
 
-            setElementSize(viewModel.otherRawCanvas, 640, 480);
-            setElementSize(viewModel.otherFinalCanvas, 640, 480);
         });
     }
 
@@ -188,6 +194,51 @@
         } else {
             return ctx.getImageData(0, 0, width, height);
         }
+    }
+
+    function RtcCanvas(selector) {
+        var self = this;
+        self.$element = $(selector);
+        var isMouseDown = false;
+        var ctx = self.$element[0].getContext('2d');
+
+        setElementSize(self.$element[0], width, height);
+
+        self.$element
+            .mousedown(function() {
+                isMouseDown = true;
+            })
+            .mouseup(function () {
+                isMouseDown = false;
+            })
+            .mousemove(function (evt) {
+                if (!isMouseDown) return;
+
+                var x = evt.offsetX;
+                var y = evt.offsetY;
+                
+                console.log("x: " + x + " y: " + y);
+                //var pixelData = ctx.getImageData(x, y, 1, 1).data;
+                //console.log(pixelData);
+            });
+
+        self.$element
+            .on('touchstart', function(evt) {
+                
+            })
+            .on('touchend', function() {                
+            })
+            .on('touchcancel', function() {
+            })
+            .on('touchmove', function (evt) {
+                evt.preventDefault();
+                var touch = evt.originalEvent.changedTouches[0];
+                var offset = self.$element.offset();
+                var x = touch.pageX - offset.left;
+                var y = touch.pageY - offset.top;
+
+                console.log('x: ' + x + " y: " + y);
+            });
     }
 
 })();
