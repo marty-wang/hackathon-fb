@@ -11,7 +11,8 @@
         startX: 0,
         startY: 0,
         currentX: 0,
-        currentY: 0
+        currentY: 0,
+        filterz: [],
     };
     
     var myPayload = {
@@ -19,6 +20,7 @@
         startY: 0,
         currentX: 0,
         currentY: 0,
+        filterz: [],
     };
 
     var filters = {
@@ -83,7 +85,8 @@
             //console.log(filterToRemoveOrEnable[1]);
             self.filters.removeAll();
             self.filters.push(event.target.id);
-            sendFilter(event.target.id);
+            self.connection.send(payload);
+            //sendFilter(event.target.id);
         };
     }
 
@@ -196,7 +199,13 @@
             aa.height = starty - curry;
         }
 
-        applyArea(inData.data, outData.data, width, height, aa, filters['applySolarize']);
+        var filterName = 'applySolarize';
+        var sentFilters = payload.filterz;
+        if (sentFilters.length > 0) {
+            filterName = sentFilters[0];
+        }
+
+        applyArea(inData.data, outData.data, width, height, aa, filters[filterName]);
 
         ctx.putImageData(outData, 0, 0);
     }
@@ -225,15 +234,16 @@
     function setupCommandBinding(commandConnection) {
         commandConnection.on('open', function () {
             commandConnection.on('data', function (data) {
-                console.log(data);
+                //console.log("receive: " + data);
 
                 if (data.filterName) {
                     viewModel.filters.removeAll();
                     viewModel.filters.push(data.filterName);
+                } else {
+                    myPayload = data;
+                    viewModel.receiveCommand(data);
                 }
-
-                myPayload = data;
-                viewModel.receiveCommand(data);
+                
             });
         });
     }
@@ -299,9 +309,10 @@
             startX: startX,
             startY: startY,
             currentX: currentX,
-            currentY: currentY
+            currentY: currentY,
+            filterz: viewModel.filters()
         };
-        
+        //console.log("send " + payload);
         viewModel.connection.send(payload);
     }
 
