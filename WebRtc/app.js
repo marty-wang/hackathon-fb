@@ -19,6 +19,8 @@
 
         var self = this;
 
+        self.connected = ko.observable(false);
+
         self.peerid = ko.observable();
         self.connectpeerid = ko.observable();
         self.commands = ko.observableArray([]);
@@ -33,6 +35,7 @@
         self.myFinalCanvas = $('#myFinalCanvas')[0];
         self.otherFinalCanvas = $('#otherFinalCanvas')[0];
         self.connection = null;
+        self.callConnection = null;
 
         new RtcCanvas('#myRawCanvas', false);
         new RtcCanvas('#otherRawCanvas', true);
@@ -42,6 +45,7 @@
             self.connection = peer.connect(self.connectpeerid());
             setupCommandBinding(self.connection);
             var call = peer.call(self.connectpeerid(), self.myStream);
+            self.callConnection = call;
             setupCallBinding(call);
         };
 
@@ -55,6 +59,10 @@
 
         self.receiveCommand = function(receivedCmd) {
             self.commands.push(receivedCmd);
+        };
+
+        self.disconnect = function () {
+            self.callConnection.close();
         };
     }
 
@@ -103,6 +111,7 @@
     peer.on('call', function (call) {
         console.log("Call received");
         call.answer(viewModel.myStream);
+        viewModel.callConnection = call;
         setupCallBinding(call);
     });
 
@@ -184,12 +193,17 @@
     function setupCallBinding(callConnection) {
         callConnection.on('stream', function (stream) {
             console.log('call stream');
+            viewModel.connected(true);
             viewModel.otherStream = stream;
             viewModel.otherVideo = document.querySelector('#otherWebcam');
             setElementSize(viewModel.otherVideo, width, height);
             viewModel.otherVideo.src = window.URL.createObjectURL(viewModel.otherStream);
             viewModel.otherVideo.play();
+        });
 
+        callConnection.on('close', function () {
+            console.log('close');
+            viewModel.connected(false);
         });
     }
 

@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title></title>
+    <title>LOLCATCHAT</title>
 
     <link href="Content/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="Content/bootstrap/bootstrap-theme.min.css" rel="stylesheet" />
@@ -9,6 +9,8 @@
     <script src="Scripts/jquery-2.0.3.min.js"></script>
     <script src="http://fb.me/react-0.4.1.js"></script>
     <script src="http://fb.me/JSXTransformer-0.4.1.js"></script>
+    <script type='text/javascript' src='scripts/knockout-2.3.0.js'></script>
+    <script type="text/javascript" src="scripts/peer.min.js"></script>
 
     </head>
     <body>
@@ -24,28 +26,39 @@
     <div class="container">
 
         <div class="row">
-            <div class="col-lg-6">
-                <h4>Your Id: dwdwadada</h4>
+            <div class="col-lg-1">
+                <h4>chat id: </h4>
             </div>
-            <div class="col-lg-6">
-                <h4>Other creepy dude</h4>
+            <div class="col-lg-5">
+                <h4 data-bind="text: peerid"></h4>
+            </div>
+            <div class="col-lg-2">
+                <h4>connected to: </h4>
+            </div>
+            <div class="col-lg-4">
+                <h4 data-bind="text: connectpeerid"></h4>
             </div>
             <div class="col-lg-6" id="yourVideo">
-                <video style="border-style:solid; border-width:1px; width:550px; height:412px;"></video>
+                <canvas id="myRawCanvas" class="videoBox"></canvas>
+                <!--<video style="border-style:solid; border-width:1px; width:550px; height:412px;"></video>-->
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-6" data-bind="visible: !connected()">
                 <div class="row">
                     <div class="col-md-9">
-                        <input type="text" class="form-control" id="otherid" placeholder="Enter chat identifier">
+                        <input type="text" class="form-control" id="otherid" placeholder="Enter chat identifier" data-bind="value: connectpeerid">
                     </div>
                     <div class="col-md-3">
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-12" style="margin-top:10px;">
-                        <button type="button" class="btn btn-warning btn-sm">Connect</button>
+                        <button type="button" class="btn btn-warning btn-sm" data-bind="click: connectToPeer">Connect</button>
                     </div>
                 </div>
+                <!--<video style="border-style:solid; border-width:1px; width:550px; height:412px;"></video>-->
+            </div>
+            <div class="col-lg-6" id="otherVideo" data-bind="visible: connected">
+                <canvas id="otherRawCanvas" class="videoBox"></canvas>
                 <!--<video style="border-style:solid; border-width:1px; width:550px; height:412px;"></video>-->
             </div>
         </div>
@@ -56,7 +69,7 @@
             <div class="col-lg-12">
                 <div class="row">
                     <div class="col-lg-12">
-                        <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-remove"></span> Disconnect</button>&nbsp;
+                        <button type="button" class="btn btn-default btn-sm" data-bind="click: disconnect"><span class="glyphicon glyphicon-remove"></span> Disconnect</button>&nbsp;
                         <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-zoom-in"></span> Zoom In</button>&nbsp;
                         <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-zoom-out"></span> Zoom out</button>&nbsp;
                         <button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-star"></span> Black & White</button>&nbsp;
@@ -72,16 +85,12 @@
 
     </div><!-- /.container -->
 
-    <script type="text/jsx">
-        /**
-        * @jsx React.DOM
-        */
-        // Your code here
+    <!--<script type="text/jsx">
 
         var VideoBox = React.createClass({
             render: function() {
                 return (
-                    <video class="videoBox"></video>
+                    <canvas id="myRawCanvas" class="videoBox"></canvas>
                 );
             }
         });
@@ -91,7 +100,18 @@
             document.getElementById('yourVideo')
         );
 
-    </script>
+    </script>-->
+
+        <div>
+            <video id="webcam" style="display:none;"></video>
+            <canvas id="myFinalCanvas" style="display:none;"></canvas>
+        </div>
+        <div>
+            <video id="otherWebcam" style="display:none;"></video>
+            <canvas id="otherFinalCanvas" style="display:none;"></canvas>
+        </div>
+
+    <script src="app.js"></script>
 
 </body>
 </html>
