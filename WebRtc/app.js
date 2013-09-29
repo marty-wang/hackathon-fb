@@ -21,6 +21,11 @@
         currentY: 0,
     };
 
+    var filters = {
+        'applyEdge2': applyEdge2,
+        'applySharpen': applySharpen
+    };
+
     function AppViewModel() {
 
         var self = this;
@@ -454,6 +459,49 @@
         outData[loc] = pix;
         outData[loc + 1] = pix;
         outData[loc + 2] = pix;
+        outData[loc + 3] = inData[loc + 3];
+    }
+    
+    function applySharpen(inData, outData, width, height, x, y) {
+        var kernel = [[0, -2, 0], [-2, 11, -2], [0, -2, 0]];
+
+        var r = 0, g = 0, b = 0;
+        var size = 0;
+        var loc = ((y) * width * 4) + ((x) * 4);
+
+        for (i = -1; i <= 1; i++) {
+            for (j = -1; j <= 1; j++) {
+                if ((x + i) < 0 || (y + j) < 0) {
+                    continue;
+                }
+                var k = kernel[j + 1][i + 1];
+                var offset = ((y + j) * width * 4) + ((x + i) * 4);
+                r += inData[offset] * k;
+                g += inData[offset + 1] * k;
+                b += inData[offset + 2] * k;
+
+                size += k;
+            }
+        }
+
+        if (size > 0) {
+            r /= size;
+            b /= size;
+            g /= size;
+        }
+
+        r = Math.max(r, 0);
+        r = Math.min(r, 255);
+
+        g = Math.min(g, 255);
+        g = Math.max(g, 0);
+
+        b = Math.min(b, 255);
+        b = Math.max(b, 0);
+
+        outData[loc] = r;
+        outData[loc + 1] = g;
+        outData[loc + 2] = b;
         outData[loc + 3] = inData[loc + 3];
     }
 
