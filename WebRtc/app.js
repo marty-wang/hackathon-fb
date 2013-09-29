@@ -241,21 +241,7 @@
                 startX = evt.offsetX;
                 startY = evt.offsetY;
 
-               payload = {
-                    startX: startX,
-                    startY: startY,
-                    currentX: startX,
-                    currentY: startY,
-                    local: true
-               };
-                
-               sendData({
-                   startX: startX,
-                   startY: startY,
-                   currentX: startX,
-                   currentY: startY,
-                   local: false
-               });
+                sendData(startX, startY, startX, startY);
             })
             .mouseup(function () {
                 isMouseDown = false;
@@ -263,21 +249,8 @@
             .mousemove(function (evt) {
                 if (!isMouseDown) return;
                
-                payload = {
-                    startX: startX,
-                    startY: startY,
-                    currentX: evt.offsetX,
-                    currentY: evt.offsetY,
-                    local: true
-                };
+                sendData(startX, startY, evt.offsetX, evt.offsetY);
 
-                sendData({
-                    startX: startX,
-                    startY: startY,
-                    currentX: evt.offsetX,
-                    currentY: evt.offsetY,
-                    local: false
-                });
             });
 
         self.$element
@@ -299,7 +272,20 @@
             });
     }
     
-    function sendData(data) {
+    function sendData(startX, startY, currentX, currentY) {
+        
+        payload = {
+            startX: startX,
+            startY: startY,
+            currentX: currentX,
+            currentY: currentY,
+            local: true
+        };
+
+        var data = {};
+        $.extend(data, payload);
+        data.local = false;
+        
         viewModel.connection.send(data);
     }
     
