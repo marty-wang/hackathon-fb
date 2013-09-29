@@ -25,7 +25,13 @@
 
     var filters = {
         'applyEdge2': applyEdge2,
-        'applySolarize': applySolarize
+        'applySolarize': applySolarize,
+        'applyDilate': applyDilate,
+        'applyErode': applyErode,
+        'applyGray': applyGray,
+        'applyBw': applyBw,
+        'applyEdge': applyEdge,
+        'applyNAvg': applyNAvg
     };
 
     function AppViewModel() {
@@ -83,10 +89,11 @@
         self.addRemoveFilter = function (data, event) {
             //var filterToRemoveOrEnable = event.target.id.split("_");
             //console.log(filterToRemoveOrEnable[1]);
-            self.filters.removeAll();
+            if (event.target.id == null || event.target.id === '') return;
+
+            self.filters.removeAll();            
             self.filters.push(event.target.id);
             self.connection.send(payload);
-            //sendFilter(event.target.id);
         };
     }
 
@@ -204,7 +211,9 @@
         if (sentFilters.length > 0) {
             filterName = sentFilters[0];
         }
-
+        
+        //console.log(filterName);
+        //console.log(filters);
         applyArea(inData.data, outData.data, width, height, aa, filters[filterName]);
 
         ctx.putImageData(outData, 0, 0);
@@ -496,49 +505,6 @@
         outData[loc + 3] = inData[loc + 3];
     }
 
-
-    function applySharpen(inData, outData, width, height, x, y) {
-        var kernel = [[0, -2, 0], [-2, 11, -2], [0, -2, 0]];
-
-        var r = 0, g = 0, b = 0;
-        var size = 0;
-        var loc = ((y) * width * 4) + ((x) * 4);
-
-        for (i = -1; i <= 1; i++) {
-            for (j = -1; j <= 1; j++) {
-                if ((x + i) < 0 || (y + j) < 0) {
-                    continue;
-                }
-                var k = kernel[j + 1][i + 1];
-                var offset = ((y + j) * width * 4) + ((x + i) * 4);
-                r += inData[offset] * k;
-                g += inData[offset + 1] * k;
-                b += inData[offset + 2] * k;
-
-                size += k;
-            }
-        }
-
-        if (size > 0) {
-            r /= size;
-            b /= size;
-            g /= size;
-        }
-
-        r = Math.max(r, 0);
-        r = Math.min(r, 255);
-
-        g = Math.min(g, 255);
-        g = Math.max(g, 0);
-
-        b = Math.min(b, 255);
-        b = Math.max(b, 0);
-
-        outData[loc] = r;
-        outData[loc + 1] = g;
-        outData[loc + 2] = b;
-    }
-
     function applySolarize(inData, outData, width, height, x, y) {
         var loc = ((y) * width * 4) + ((x) * 4);
         var r = inData[loc];
@@ -554,58 +520,58 @@
     
     function applyDilate(inData, outData, width, height, x, y) {
         var mr = 0, mg = 0, mb = 0;
-		
-		var loc = ((y) * width * 4) + ((x) * 4);
-		
-		for(i = -1; i <= 1; i++){
-			for(j = -1; j <= 1; j++){
-				if((x+i) < 0 || (y+j) < 0){
-					continue;
-				}
-				
-				var offset = ((y+j) * width * 4) + ((x+i) * 4);
-				var r = inData[offset];
-				var g = inData[offset + 1];
-				var b = inData[offset + 2];
-				
-				mr = Math.max(r, mr);
-				mg = Math.max(g, mg);
-				mb = Math.max(b, mb);
-			}
-		}
-		
-		outData[loc] = mr;
-		outData[loc + 1] = mg;
-		outData[loc + 2] = mb;
-		outData[loc + 3] = inData[loc + 3];
+        
+        var loc = ((y) * width * 4) + ((x) * 4);
+        
+        for(i = -1; i <= 1; i++){
+            for(j = -1; j <= 1; j++){
+                if((x+i) < 0 || (y+j) < 0){
+                    continue;
+                }
+                
+                var offset = ((y+j) * width * 4) + ((x+i) * 4);
+                var r = inData[offset];
+                var g = inData[offset + 1];
+                var b = inData[offset + 2];
+                
+                mr = Math.max(r, mr);
+                mg = Math.max(g, mg);
+                mb = Math.max(b, mb);
+            }
+        }
+        
+        outData[loc] = mr;
+        outData[loc + 1] = mg;
+        outData[loc + 2] = mb;
+        outData[loc + 3] = inData[loc + 3];
     }
-	
-	function applyErode(inData, outData, width, height, x, y) {
+    
+    function applyErode(inData, outData, width, height, x, y) {
         var mr = 255, mg = 255, mb = 255;
-		
-		var loc = ((y) * width * 4) + ((x) * 4);
-		
-		for(i = -1; i <= 1; i++){
-			for(j = -1; j <= 1; j++){
-				if((x+i) < 0 || (y+j) < 0){
-					continue;
-				}
-				
-				var offset = ((y+j) * width * 4) + ((x+i) * 4);
-				var r = inData[offset];
-				var g = inData[offset + 1];
-				var b = inData[offset + 2];
-				
-				mr = Math.min(r, mr);
-				mg = Math.min(g, mg);
-				mb = Math.min(b, mb);
-			}
-		}
-		
-		outData[loc] = mr;
-		outData[loc + 1] = mg;
-		outData[loc + 2] = mb;
-		outData[loc + 3] = inData[loc + 3];
+        
+        var loc = ((y) * width * 4) + ((x) * 4);
+        
+        for(i = -1; i <= 1; i++){
+            for(j = -1; j <= 1; j++){
+                if((x+i) < 0 || (y+j) < 0){
+                    continue;
+                }
+                
+                var offset = ((y+j) * width * 4) + ((x+i) * 4);
+                var r = inData[offset];
+                var g = inData[offset + 1];
+                var b = inData[offset + 2];
+                
+                mr = Math.min(r, mr);
+                mg = Math.min(g, mg);
+                mb = Math.min(b, mb);
+            }
+        }
+        
+        outData[loc] = mr;
+        outData[loc + 1] = mg;
+        outData[loc + 2] = mb;
+        outData[loc + 3] = inData[loc + 3];
     }
 
 })();
