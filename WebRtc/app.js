@@ -23,7 +23,7 @@
 
     var filters = {
         'applyEdge2': applyEdge2,
-        'applySharpen': applySharpen
+        'applySolarize': applySolarize
     };
 
     function AppViewModel() {
@@ -36,6 +36,7 @@
         self.connectpeerid = ko.observable();
         self.commands = ko.observableArray([]);
         self.currentcommand = ko.observable();
+        self.filters = ko.observableArray([0,0,0,0,0,0]); //store bloody filters
 
         self.myStream = null;
         self.otherStream = null;
@@ -74,6 +75,12 @@
 
         self.disconnect = function () {
             self.callConnection.close();
+        };
+
+        //add remove filter
+        self.addRemoveFilter = function (data, event) {
+            var filterToRemoveOrEnable = event.target.id.split("_");
+            console.log(filterToRemoveOrEnable[1]);
         };
     }
 
@@ -186,7 +193,7 @@
             aa.height = starty - curry;
         }
 
-        applyArea(inData.data, outData.data, width, height, aa, applyEdge2);
+        applyArea(inData.data, outData.data, width, height, aa, filters['applySolarize']);
 
         ctx.putImageData(outData, 0, 0);
     }
@@ -461,7 +468,8 @@
         outData[loc + 2] = pix;
         outData[loc + 3] = inData[loc + 3];
     }
-    
+
+
     function applySharpen(inData, outData, width, height, x, y) {
         var kernel = [[0, -2, 0], [-2, 11, -2], [0, -2, 0]];
 
@@ -502,6 +510,18 @@
         outData[loc] = r;
         outData[loc + 1] = g;
         outData[loc + 2] = b;
+    }
+
+    function applySolarize(inData, outData, width, height, x, y) {
+        var loc = ((y) * width * 4) + ((x) * 4);
+        var r = inData[loc];
+        var g = inData[loc + 1];
+        var b = inData[loc + 2];
+
+        outData[loc] = r > 127 ? 255 - r : r;
+        outData[loc + 1] = g > 127 ? 255 - g : g;
+        outData[loc + 2] = b > 127 ? 255 - b : b;
+
         outData[loc + 3] = inData[loc + 3];
     }
 
