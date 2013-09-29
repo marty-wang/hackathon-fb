@@ -31,6 +31,7 @@
         self.connectpeerid = ko.observable();
         self.commands = ko.observableArray([]);
         self.currentcommand = ko.observable();
+        self.filters = ko.observableArray([0,0,0,0,0,0]); //store bloody filters
 
         self.myStream = null;
         self.otherStream = null;
@@ -69,6 +70,12 @@
 
         self.disconnect = function () {
             self.callConnection.close();
+        };
+
+        //add remove filter
+        self.addRemoveFilter = function (data, event) {
+            var filterToRemoveOrEnable = event.target.id.split("_");
+            console.log(filterToRemoveOrEnable[1]);
         };
     }
 
