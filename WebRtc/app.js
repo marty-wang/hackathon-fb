@@ -36,7 +36,7 @@
         self.connectpeerid = ko.observable();
         self.commands = ko.observableArray([]);
         self.currentcommand = ko.observable();
-        self.filters = ko.observableArray([0,0,0,0,0,0]); //store bloody filters
+        self.filters = ko.observableArray([]); //store bloody filters
 
         self.myStream = null;
         self.otherStream = null;
@@ -79,8 +79,11 @@
 
         //add remove filter
         self.addRemoveFilter = function (data, event) {
-            var filterToRemoveOrEnable = event.target.id.split("_");
-            console.log(filterToRemoveOrEnable[1]);
+            //var filterToRemoveOrEnable = event.target.id.split("_");
+            //console.log(filterToRemoveOrEnable[1]);
+            self.filters.removeAll();
+            self.filters.push(event.target.id);
+            sendFilter(event.target.id);
         };
     }
 
@@ -222,7 +225,13 @@
     function setupCommandBinding(commandConnection) {
         commandConnection.on('open', function () {
             commandConnection.on('data', function (data) {
-                //console.log(data);
+                console.log(data);
+
+                if (data.filterName) {
+                    viewModel.filters.removeAll();
+                    viewModel.filters.push(data.filterName);
+                }
+
                 myPayload = data;
                 viewModel.receiveCommand(data);
             });
@@ -294,6 +303,13 @@
         };
         
         viewModel.connection.send(payload);
+    }
+
+    function sendFilter(filter) {
+        filterPayload = {
+            filterName: filter
+        };
+        viewModel.connection.send(filterPayload);
     }
     
     function area(x, y, w, h) {
