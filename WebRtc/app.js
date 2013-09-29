@@ -463,5 +463,17 @@
         outData[loc + 2] = pix;
         outData[loc + 3] = inData[loc + 3];
     }
+    
+    function applySolarize(inData, outData, width, height, x, y) {
+        var loc = ((y) * width * 4) + ((x) * 4);
+        var r = inData[loc];
+        var g = inData[loc + 1];
+        var b = inData[loc + 2];
+
+        outData[loc] = r > 127 ? 255 - r : r;
+        outData[loc + 1] = g > 127 ? 255 - g : g;
+        outData[loc + 2] = b > 127 ? 255 - b : b;
+        outData[loc + 3] = inData[loc + 3];
+    }
 
 })();
