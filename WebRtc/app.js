@@ -551,5 +551,61 @@
 
         outData[loc + 3] = inData[loc + 3];
     }
+    
+    function applyDilate(inData, outData, width, height, x, y) {
+        var mr = 0, mg = 0, mb = 0;
+		
+		var loc = ((y) * width * 4) + ((x) * 4);
+		
+		for(i = -1; i <= 1; i++){
+			for(j = -1; j <= 1; j++){
+				if((x+i) < 0 || (y+j) < 0){
+					continue;
+				}
+				
+				var offset = ((y+j) * width * 4) + ((x+i) * 4);
+				var r = inData[offset];
+				var g = inData[offset + 1];
+				var b = inData[offset + 2];
+				
+				mr = Math.max(r, mr);
+				mg = Math.max(g, mg);
+				mb = Math.max(b, mb);
+			}
+		}
+		
+		outData[loc] = mr;
+		outData[loc + 1] = mg;
+		outData[loc + 2] = mb;
+		outData[loc + 3] = inData[loc + 3];
+    }
+	
+	function applyErode(inData, outData, width, height, x, y) {
+        var mr = 255, mg = 255, mb = 255;
+		
+		var loc = ((y) * width * 4) + ((x) * 4);
+		
+		for(i = -1; i <= 1; i++){
+			for(j = -1; j <= 1; j++){
+				if((x+i) < 0 || (y+j) < 0){
+					continue;
+				}
+				
+				var offset = ((y+j) * width * 4) + ((x+i) * 4);
+				var r = inData[offset];
+				var g = inData[offset + 1];
+				var b = inData[offset + 2];
+				
+				mr = Math.min(r, mr);
+				mg = Math.min(g, mg);
+				mb = Math.min(b, mb);
+			}
+		}
+		
+		outData[loc] = mr;
+		outData[loc + 1] = mg;
+		outData[loc + 2] = mb;
+		outData[loc + 3] = inData[loc + 3];
+    }
 
 })();
