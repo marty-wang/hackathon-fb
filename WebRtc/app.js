@@ -11,9 +11,15 @@
         startX: 0,
         startY: 0,
         currentX: 0,
+        currentY: 0
+    };
+    
+    var myPayload = {
+        startX: 0,
+        startY: 0,
+        currentX: 0,
         currentY: 0,
-        local: true,
-};
+    };
 
     function AppViewModel() {
 
@@ -141,20 +147,14 @@
             otherRawCtx.drawImage(viewModel.otherVideo, 0, 0, width, height);
         }
 
-        var local = payload.local;
-
-        // remote
-        if (!local) {
-            doEffect(myRawCtx);
-        } else {
-            doEffect(otherRawCtx);
-        }
+        doEffect(myRawCtx, myPayload);
+        doEffect(otherRawCtx, payload);
 
         //onFrame(canvas);
         requestAnimationFrame(refresh);
     }
     
-    function doEffect(ctx) {
+    function doEffect(ctx, payload) {
         var inData = ctx.getImageData(0, 0, width, height);
         var outData = createImageData(ctx, width, height);
 
@@ -211,7 +211,7 @@
         commandConnection.on('open', function () {
             commandConnection.on('data', function (data) {
                 //console.log(data);
-                payload = data;
+                myPayload = data;
                 viewModel.receiveCommand(data);
             });
         });
@@ -278,15 +278,10 @@
             startX: startX,
             startY: startY,
             currentX: currentX,
-            currentY: currentY,
-            local: true
+            currentY: currentY
         };
-
-        var data = {};
-        $.extend(data, payload);
-        data.local = false;
         
-        viewModel.connection.send(data);
+        viewModel.connection.send(payload);
     }
     
     function area(x, y, w, h) {
